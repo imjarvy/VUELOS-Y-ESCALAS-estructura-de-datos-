@@ -1,0 +1,302 @@
+/* =============================================================================
+   Graph UI Styles — Directed Graph with D3 Force
+   Layout: full-height graph visualization + control panel
+   Font: Inter (UI) + JetBrains Mono (data)
+   ============================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* =============================================================================
+   TOKENS
+   ============================================================================= */
+:root {
+  --bg:           #f7f8fa;
+  --bg-panel:     #ffffff;
+  --bg-inset:     #f1f3f6;
+  --bg-hover:     #e8ebf0;
+  --border:       #e2e5ea;
+  --border-focus: #3b82f6;
+
+  --text:         #111318;
+  --text-secondary: #6b7280;
+  --text-muted:   #9ca3af;
+
+  --blue:         #3b82f6;
+  --blue-bg:      #eff6ff;
+  --blue-border:  #bfdbfe;
+
+  --green:        #16a34a;
+  --green-bg:     #f0fdf4;
+  --green-border: #bbf7d0;
+
+  --red:          #dc2626;
+  --red-bg:       #fef2f2;
+  --red-border:   #fecaca;
+
+  --yellow:       #d97706;
+  --yellow-bg:    #fffbeb;
+  --yellow-border:#fde68a;
+
+  --node-default-fill:   #eff6ff;
+  --node-default-stroke: #3b82f6;
+  --node-root-fill:      #f0fdf4;
+  --node-root-stroke:    #16a34a;
+  --node-critical-fill:  #fef2f2;
+  --node-critical-stroke:#dc2626;
+
+  --font-ui:   'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  --radius-sm: 6px;
+  --radius:    10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
+  --shadow:    0 4px 12px rgba(0,0,0,.08);
+}
+
+/* =============================================================================
+   RESET & BASE
+   ============================================================================= */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { font-size: 14px; }
+
+body {
+  font-family: var(--font-ui);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* =============================================================================
+   HEADER
+   ============================================================================= */
+header {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+header strong {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+/* =============================================================================
+   CONTROLS
+   ============================================================================= */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+button {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: var(--blue-bg);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+button:active:not(:disabled) {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: #fff;
+}
+
+/* =============================================================================
+   GRAPH CONTAINER
+   ============================================================================= */
+#graphContainer {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  height: calc(100vh - 180px);
+  min-height: 420px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+  flex-grow: 1;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+#graphSvg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: var(--bg-inset);
+}
+
+/* =============================================================================
+   STATUS PANEL
+   ============================================================================= */
+#status {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 8px 12px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+
+/* =============================================================================
+   D3 GRAPH NODES
+   ============================================================================= */
+.node circle {
+  fill: var(--node-default-fill);
+  stroke: var(--node-default-stroke);
+  stroke-width: 1.5px;
+  transition: all 0.2s;
+}
+
+.node:hover circle {
+  stroke-width: 2.5px;
+  filter: drop-shadow(0 2px 6px rgba(59, 130, 246, 0.25));
+}
+
+.node-root circle {
+  fill: var(--node-root-fill);
+  stroke: var(--node-root-stroke);
+  stroke-width: 2px;
+}
+
+.node-critical circle {
+  fill: var(--node-critical-fill);
+  stroke: var(--node-critical-stroke);
+  stroke-width: 2px;
+}
+
+.node-selected circle {
+  stroke: var(--text);
+  stroke-width: 2.5px;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+}
+
+.node-code {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  fill: var(--text);
+  text-anchor: middle;
+  pointer-events: none;
+  user-select: none;
+}
+
+.node-critical .node-code {
+  fill: var(--red);
+}
+
+/* =============================================================================
+   D3 GRAPH LINKS
+   ============================================================================= */
+.link {
+  fill: none;
+  stroke: var(--text-secondary);
+  stroke-width: 1.5px;
+  opacity: 0.95;
+}
+
+.graph-arrowhead {
+  fill: var(--text-secondary);
+  opacity: 0.95;
+}
+
+/* =============================================================================
+   UTILITY
+   ============================================================================= */
+.hidden {
+  display: none !important;
+}
+
+/* =============================================================================
+   SCROLLBAR
+   ============================================================================= */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-inset);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* =============================================================================
+   RESPONSIVE
+   ============================================================================= */
+@media (max-width: 768px) {
+  body {
+    gap: 8px;
+    padding: 8px;
+  }
+
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  #graphContainer {
+    height: 50vh;
+    min-height: 300px;
+  }
+
+  .controls {
+    width: 100%;
+  }
+
+  button {
+    flex: 1;
+    min-width: 120px;
+  }
+}
