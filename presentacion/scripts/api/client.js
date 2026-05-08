@@ -56,6 +56,21 @@ export async function apiPost(url, data) {
     }
 }
 
+export async function apiPostFormData(url, formData) {
+    try {
+        const response = await fetch(`${BASE_URL}${url}`, {
+            method: "POST",
+            body: formData 
+        });
+
+        return await handleResponse(response);
+
+    } catch (error) {
+        console.error("POST Form Data Error:", error.message);
+        throw error;
+    }
+}
+
 /**
  * PUT
  */

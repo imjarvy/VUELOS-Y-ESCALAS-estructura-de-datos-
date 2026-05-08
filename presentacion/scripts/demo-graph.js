@@ -1,3 +1,4 @@
+import { apiPostFormData } from "./api/client.js";
 import { createGraphUi, transformGraphToD3Data } from "./graphUI.js";
 
 const status = document.getElementById("status");
@@ -43,29 +44,14 @@ document.getElementById("loadJsonConfirmBtn").addEventListener("click", async ()
   }
 
   status.textContent = "Cargando JSON...";
+  
+  const formData = new FormData();
+  formData.append("file", file);
+  
+  const response = await apiPostFormData("/api/load-graph", formData);
+  const d3Graph = transformGraphToD3Data(response.graph ?? response);
 
-  try {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const response = await fetch("/api/load-graph", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "No se pudo cargar el grafo");
-    }
-
-    const graphData = transformGraphToD3Data(data.graph);
-
-    graphUi.renderGraph(graphData, "graphSvg", "graphContainer");
-
-    status.textContent = `Render OK | Aeropuertos: ${graphData.nodes.length} | Rutas: ${graphData.links.length}`;
-    closeModal();
-  } catch (error) {
-    status.textContent = `Error: ${error.message}`;
-    console.error(error);
-  }
+  graphUi.renderGraph(d3Graph, "graphSvg", "graphContainer");
+  status.textContent = `Grafo cargado: ${response.airports ?? d3Graph.nodes.length} aeropuertos.`;
+  closeModal();
 });
