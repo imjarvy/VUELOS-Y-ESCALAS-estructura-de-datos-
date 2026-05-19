@@ -8,6 +8,7 @@ import os
 from flask import Flask, render_template, send_from_directory
 from flask_cors import CORS
 from routes.graph_routes import graph_bp
+from services.graphDataService import GraphDataService
 
 BASE_DIR = os.path.dirname(__file__)
 TEMPLATES_DIR = os.path.join(BASE_DIR, "presentacion", "vistas")

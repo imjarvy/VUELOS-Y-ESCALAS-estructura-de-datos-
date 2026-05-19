@@ -591,3 +591,26 @@ envia el archivo .json con el endpoint y luego guarda y reemplaza los datos
   }
 }
 
+
+### EN EL ARCHIVO "route_optimizer.py" QUE COPIE EL ALGORITMO DEL COLLAB DEL PROFE TENER EN CUENTA: 
+   Mapping from notebook → this implementation:
+        Grafo            → Graph
+        Vertice          → Airport  (accessed via graph.get_vertex)
+        Arista           → Route    (accessed via graph.get_neighbors)
+        arista.getPeso() → _pick_best_aircraft(...)  (dynamic per criterion)
+        identificador    → airport_id
+        mapa_vertices    → graph._vertex_map  (built into Graph)
+        no_visitados     → unvisited (same set structure)
+        pred[v] = u      → pred[v] = (u, aircraft_name, aircraft_key)
+                           (extended to store aircraft choice for Leg building)
+
+    Args:
+        graph:             live Graph built by GraphDataService.
+        origin:            IATA code of departure airport.
+        dest:              IATA code of arrival airport.
+        weight_fn:         converts (distance, rates) to a float weight.
+        allowed_keys:      allowed aircraft type keys, or None for all.
+        include_secondary: if False, non-hub intermediate airports are skipped.
+
+    Returns:
+        (path, pred) on success, None if destination is unreachable.
